@@ -1,0 +1,32 @@
+﻿@page "/upload"
+@rendermode InteractiveServer
+<InputFile OnChange="FileSeleted" acceppt=".jpg,.jpeg,.tiff"></InputFile>
+<button @onclick="UploadFile">Upload</button>
+
+@code {
+    private IBrowserFile file;
+    private async Task FileSeleted(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+
+    }
+    private async Task UploadFile()
+    {
+        if (file != null)
+        {
+            var uploadsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+
+            if (!Directory.Exists(uploadsDirectory))
+            {
+                Directory.CreateDirectory(uploadsDirectory);
+            }
+
+            var filePath = Path.Combine(uploadsDirectory, file.Name);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.OpenReadStream().CopyToAsync(stream);
+            }
+        }
+    }
+
+}

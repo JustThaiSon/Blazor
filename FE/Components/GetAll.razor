@@ -1,0 +1,70 @@
+﻿@page "/getall"
+@using FE.Model
+@using FE.Service
+@inject IEmployeeService EmployeeService;
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@rendermode InteractiveServer
+<button class="btn btn-info" @onclick="ToCreate">Create</button>
+@if (Employees == null)
+{
+    <p>Loading...</p>
+}
+else if (!Employees.Any())
+{
+    <p>No employees found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in Employees)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>@employee.Address</td>
+                    <td>@employee.Age</td>
+                    <td>
+                        <button  class="btn btn-danger" @onclick="()=> ToDelete(employee.Id)">Delete</button>
+                        <button class="btn btn-warning" @onclick="() => ToEdit(employee.Id)">Update</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Employee> Employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+    private async Task LoadEmployees()
+    {
+        Employees = await http.GetFromJsonAsync<List<Employee>>("api/Employee/GetAll");
+    }
+    protected async Task ToCreate()
+    {
+        NavigationManager.NavigateTo("/create");
+    }
+
+    private void ToEdit(Guid id)
+    {
+        NavigationManager.NavigateTo($"/update/{id}");
+    }
+    private async Task ToDelete(Guid id)
+    {
+        await EmployeeService.Delete(id);
+        await LoadEmployees();
+    }
+}

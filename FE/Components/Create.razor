@@ -1,0 +1,42 @@
+﻿@page "/create"
+@using FE.Model
+@using FE.Service
+@rendermode InteractiveServer
+@inject IEmployeeService EmployeeService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="sv" OnValidSubmit="SubmitForm">
+    <div>
+        <label>Name: </label>
+        <InputText @bind-Value="sv.Name" />
+        <ValidationMessage For="@(() => sv.Name)" />
+    </div>
+    <div>
+        <label>Age: </label>
+        <InputNumber @bind-Value="sv.Age" />
+        <ValidationMessage For="@(() => sv.Age)" />
+    </div>
+    <div>
+        <label>Address: </label>
+        <InputText @bind-Value="sv.Address" />
+        <ValidationMessage For="@(() => sv.Address)" />
+    </div>
+    <button type="submit">Create</button>
+    <button type="button" @onclick="ToBack">Create</button>
+</EditForm>
+
+@code {
+    private Employee sv = new Employee(); 
+
+    private async Task SubmitForm()
+    {
+        await EmployeeService.Create(sv);
+        await EmployeeService.GetAll();
+        NavigationManager.NavigateTo("/getall");
+    }
+
+    private void ToBack()
+    {
+        NavigationManager.NavigateTo("/getall");
+    }
+}

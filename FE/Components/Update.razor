@@ -1,0 +1,42 @@
+﻿@page "/update/{id:guid}"
+@using FE.Model
+@using FE.Service
+@rendermode InteractiveServer
+@inject IEmployeeService EmployeeService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="sv" OnValidSubmit="SubmitForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Name: </label>
+        <InputText @bind-Value="sv.Name" />
+    </div>
+    <div>
+        <label>Age: </label>
+        <InputNumber @bind-Value="sv.Age" />
+    </div>
+    <div>
+        <label>Address: </label>
+        <InputText @bind-Value="sv.Address" />
+    </div>
+    <button type="submit">Create</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid id { get; set; } 
+    private Employee sv = new Employee();
+
+    protected override async Task OnInitializedAsync()
+    {
+        sv = await EmployeeService.GetById(id);
+    }
+    private async Task SubmitForm()
+    {
+        await EmployeeService.Update(id,sv.Name,sv.Address,sv.Age);
+        await EmployeeService.GetAll();
+        NavigationManager.NavigateTo("/getall");
+    }
+
+}
